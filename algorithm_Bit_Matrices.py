@@ -4,7 +4,7 @@
 def Bit_Matrices(G):
     max_path = 1
     adjencent_nodes = G.adj
-    per_node_BFS = []
+    per_node_traverse = []
     for starting_node in G.nodes():
         nodes_visited = {starting_node: 0}
         search_queue = [starting_node]
@@ -27,5 +27,5 @@ def Bit_Matrices(G):
         dict_distribution = dict.fromkeys(node_distances, 0)
         for count in node_distances:
             dict_distribution[count] += 1
-        per_node_BFS.append(dict_distribution)
-    return per_node_BFS
+        per_node_traverse.append(dict_distribution)
+    return per_node_traverse

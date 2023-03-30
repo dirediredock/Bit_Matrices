@@ -5,15 +5,14 @@ import numpy as np
 
 from algorithm_Bit_Matrices import Bit_Matrices
 from algorithm_BMatrix import B_Matrix
-from plot_node_link import node_link
 
 
-def BitMatrices_NodeMap(networkx_graph):
+def BitMatrices_CellMap(networkx_graph):
     bit_flip_dicts = Bit_Matrices(networkx_graph)
-    zeros_height = max([len(dict) for dict in bit_flip_dicts])
+    zeros_height = max([len(dict) for dict in bit_flip_dicts] + [2])
     zeros_width = len(bit_flip_dicts)
     BMatrix = np.zeros((zeros_height, zeros_width))
-    node_map = {}
+    cell_map = {}
     bit_matrices = []
     for node_index, dict in enumerate(bit_flip_dicts):
         for row in range(len(dict), zeros_height):
@@ -22,10 +21,10 @@ def BitMatrices_NodeMap(networkx_graph):
         for i, j in dict.items():
             BMatrix[i][j] += 1
             bit_matrix[i][j] = 1
-            if (i, j) not in node_map:
-                node_map[(i, j)] = [node_index]
+            if (i, j) not in cell_map:
+                cell_map[(i, j)] = [node_index]
             else:
-                node_map[(i, j)].append(node_index)
+                cell_map[(i, j)].append(node_index)
         bit_matrices.append(bit_matrix)
     trim = np.where(BMatrix != 0)
     BMatrix = BMatrix[
@@ -41,7 +40,7 @@ def BitMatrices_NodeMap(networkx_graph):
         return (
             np.array(bit_matrices),
             np.array(networkx_graph.edges),
-            node_map,
+            cell_map,
             np.array(BMatrix),
             B_Matrix(networkx_graph),
         )
@@ -53,7 +52,7 @@ def BitMatrices_NodeMap(networkx_graph):
 # G = nx.balanced_tree(r=2, h=4)
 G = nx.read_gml("College_Football.gml", label="id")
 
-selected_nodes = [ # some small world nodes
+selected_nodes = [  # some small world nodes
     7,
     8,
     22,
@@ -65,7 +64,7 @@ selected_nodes = [ # some small world nodes
     111,
 ]
 
-selected_nodes = [ # zeroth column nodes
+selected_nodes = [  # zeroth column nodes
     0,
     3,
     6,
@@ -85,11 +84,13 @@ selected_nodes = [ # zeroth column nodes
     92,
     93,
     106,
-]  
+]
+
+from plot_node_link import node_link
 
 node_link(G, selected_nodes)
 
-bit_matrices, edgelist, node_map, BMatrix, baseline = BitMatrices_NodeMap(G)
+bit_matrices, edgelist, node_map, BMatrix, baseline = BitMatrices_CellMap(G)
 
 slected_matrices = []
 for node, bit_matrix in enumerate(bit_matrices):
@@ -107,18 +108,3 @@ from plot_BMatrix_histogram import matrix_histogram
 
 matrix_histogram(summed_selection, row_normalized=False)
 matrix_histogram(summed_selection, row_normalized=True)
-
-
-# print()
-# for node, bit_matrix in enumerate(bit_matrices):
-#     print(bit_matrix, node)
-#     print()
-# print(edgelist)
-# print()
-# for matrix_ij, node_contribution in node_map.items():
-#     print(matrix_ij, node_contribution)
-# print()
-# print(BMatrix)
-# print()
-# print(baseline)
-# print()
